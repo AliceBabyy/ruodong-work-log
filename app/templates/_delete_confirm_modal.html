@@ -1,0 +1,28 @@
+<!-- 删除便签确认弹窗（共享，居中；无标头、正文与按钮居中、圆角更小、窄而舒展） -->
+<div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <p class="mb-2">确定要删除这条便签吗？</p>
+        <p class="text-danger small mb-0">删除后无法恢复。</p>
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-light btn-sm px-4" data-bs-dismiss="modal">取消</button>
+        <form method="post" id="deleteNoteForm" class="d-inline">
+          <button type="submit" class="btn btn-danger btn-sm px-4">删除</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+    const modal = document.getElementById('deleteNoteModal');
+    if (!modal) return;
+    modal.addEventListener('show.bs.modal', function(e) {
+        const btn = e.relatedTarget;
+        if (!btn || !btn.getAttribute('data-id')) return;
+        document.getElementById('deleteNoteForm').action = '/todos/' + btn.getAttribute('data-id') + '/delete';
+    });
+})();
+</script>

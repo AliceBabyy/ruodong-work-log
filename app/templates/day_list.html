@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ type_label }} · {{ current_date.strftime('%Y-%m-%d') }}{% endblock %}
+{% block nav_work %}{% if log_type == 'work' %}active{% endif %}{% endblock %}
+{% block nav_study %}{% if log_type == 'study' %}active{% endif %}{% endblock %}
+{% block nav_rest %}{% if log_type == 'rest' %}active{% endif %}{% endblock %}
+{% block content %}
+{% set ds = current_date.strftime('%Y-%m-%d') %}
+<div class="page-header">
+    <h2 class="page-title">{{ current_date.strftime('%Y年%m月%d日') }} · {{ type_label }}</h2>
+    <div>
+        <a href="/" class="back-link me-3">← 返回月历</a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">+ 添加{{ type_label }}</button>
+    </div>
+</div>
+
+<div class="content-card">
+    {% if logs %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 100px">开始时间</th>
+                <th style="width: 100px">结束时间</th>
+                {% if log_type == 'rest' %}
+                <th>放松方式</th>
+                <th>备注</th>
+                {% else %}
+                <th>内容</th>
+                <th>成果</th>
+                <th>额外事项</th>
+                {% endif %}
+                <th style="width: 140px">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.start_time.strftime('%H:%M') }}</td>
+                <td>{{ log.end_time.strftime('%H:%M') }}</td>
+                {% if log_type == 'rest' %}
+                <td>{{ log.rest_way }}</td>
+                <td>{{ log.remark or '' }}</td>
+                {% else %}
+                <td>{{ log.content }}</td>
+                <td>{{ log.result or '' }}</td>
+                <td>{{ log.extra_things or '' }}</td>
+                {% endif %}
+                <td>
+                    <a href="{{ edit_url_prefix }}/{{ log.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary btn-action">编辑</a>
+                    <form method="post" action="{{ edit_url_prefix }}/{{ log.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                        <input type="hidden" name="return_date" value="{{ ds }}">
+                        <button class="btn btn-sm btn-outline-danger btn-action">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted text-center py-5">暂无{{ type_label }}</p>
+    {% endif %}
+</div>
+
+<!-- 添加记录弹窗 -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">添加{{ type_label }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{{ add_url }}">
+          <div class="mb-3">
+            <label class="form-label">开始时间</label>
+            <input type="datetime-local" name="start_time" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">结束时间</label>
+            <input type="datetime-local" name="end_time" class="form-control" required>
+          </div>
+          {% if log_type == 'rest' %}
+          <div class="mb-3">
+            <label class="form-label">放松方式</label>
+            <input type="text" name="rest_way" class="form-control" required placeholder="比如：散步、刷手机、午睡">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">备注</label>
+            <textarea name="remark" class="form-control"></textarea>
+          </div>
+          {% else %}
+          <div class="mb-3">
+            <label class="form-label">这段时间做了什么</label>
+            <textarea name="content" class="form-control" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">成果</label>
+            <textarea name="result" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">中途额外做的事</label>
+            <textarea name="extra_things" class="form-control"></textarea>
+          </div>
+          {% endif %}
+          <input type="hidden" name="return_date" value="{{ ds }}">
+          <div class="text-end mt-4">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-reset-form>重置</button>
+            <button type="submit" class="btn btn-matcha btn-sm ms-2">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

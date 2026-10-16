@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}总待办{% endblock %}
+{% block nav_todos %}active{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">总待办</h2>
+    <a href="/" class="back-link">← 返回月历</a>
+</div>
+
+<!-- 昨天的便签 -->
+<div class="content-card mb-4">
+    <div class="note-section-title">
+        <div class="note-section-head">
+            <span class="note-section-label">昨天的便签 · {{ yesterday.strftime('%m月%d日') }}</span>
+            <span class="note-section-count">{{ yesterday_notes|length }} 条</span>
+        </div>
+        {% if yesterday_notes|length > visible_count %}
+        <button class="btn btn-light btn-sm" id="yesterdayExpandBtn" data-total="{{ yesterday_notes|length }}">展开全部（共 {{ yesterday_notes|length }} 条）▾</button>
+        {% endif %}
+    </div>
+    {% if yesterday_notes %}
+    {% set hide_after = visible_count %}
+    <div class="note-grid notes-wrap" id="yesterdayNotes">
+        {% for note in yesterday_notes %}
+        {% set note_index = loop.index0 %}
+        {% include "_note_card.html" %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="note-empty">昨天没有便签。</p>
+    {% endif %}
+</div>
+
+<!-- 全局总待办 -->
+<div class="content-card">
+    <div class="note-section-title">
+        <span class="note-section-label">全局总待办</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addNoteModal">+ 新增便签</button>
+    </div>
+    {% if global_notes %}
+    {% set hide_after = 99999 %}
+    <div class="note-grid">
+        {% for note in global_notes %}
+        {% set note_index = loop.index0 %}
+        {% include "_note_card.html" %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="note-empty">还没有全局待办。把不限定日期、想一直记得的事放在这里。</p>
+    {% endif %}
+</div>
+
+<!-- 新增全局便签弹窗 -->
+<div class="modal fade" id="addNoteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新增全局便签</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="/todos/add">
+          <input type="hidden" name="scope" value="global">
+          <div class="mb-3">
+            <label class="form-label">便签内容（可多行，随记/待办都行）</label>
+            <textarea name="content" class="form-control" rows="4" required placeholder="不限定日期，想一直记得的事"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">标签（选一个，卡片左上角会显示对应颜色的小点）</label>
+            <div>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="" checked>
+                <span class="note-tag-swatch swatch-none"></span>无标签（白色）
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="note">
+                <span class="note-tag-swatch swatch-note"></span>随记（米黄）
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="plan">
+                <span class="note-tag-swatch swatch-plan"></span>计划（浅绿）
+              </label>
+            </div>
+          </div>
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" name="pinned" id="addPinned">
+            <label class="form-check-label" for="addPinned">置顶此便签</label>
+          </div>
+          <div class="text-end mt-4">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-reset-form>重置</button>
+            <button type="submit" class="btn btn-matcha btn-sm ms-2">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for note in yesterday_notes %}
+{% include "_note_edit_modal.html" %}
+{% endfor %}
+{% for note in global_notes %}
+{% include "_note_edit_modal.html" %}
+{% endfor %}
+{% include "_delete_confirm_modal.html" %}
+
+<script>
+(function() {
+    const btn = document.getElementById('yesterdayExpandBtn');
+    if (!btn) return;
+    const wrap = document.getElementById('yesterdayNotes');
+    btn.addEventListener('click', function() {
+        const expanded = wrap.classList.toggle('expanded');
+        btn.textContent = expanded ? '收起 ▴' : '展开全部（共 ' + btn.dataset.total + ' 条）▾';
+    });
+})();
+</script>
+{% endblock %}

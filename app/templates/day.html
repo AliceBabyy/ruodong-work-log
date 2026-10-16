@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ target_date.strftime('%Y年%m月%d日') }} · 工作日志{% endblock %}
+{% block content %}
+{% set ds = target_date.strftime('%Y-%m-%d') %}
+<a href="/" class="text-decoration-none text-muted small">← 返回月历</a>
+<h2 class="mt-1 mb-0">{{ target_date.strftime('%Y年%m月%d日') }}</h2>
+<p class="text-muted small mb-4">{{ target_date.strftime('%A') }}</p>
+
+<ul class="nav nav-tabs" id="myTab">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#timeline">时间线</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#work">工作记录</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#study">学习记录</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#rest">休息记录</a></li>
+</ul>
+
+<div class="tab-content">
+
+    <!-- 时间线 -->
+    <div class="tab-pane fade show active" id="timeline">
+        {% if timeline %}
+            {% for item in timeline %}
+            <div class="timeline-item">
+                <span class="badge-type badge-{{ item.type }}">
+                    {% if item.type == 'work' %}工作{% elif item.type == 'study' %}学习{% else %}休息{% endif %}
+                </span>
+                <strong>{{ item.data.start_time.strftime('%H:%M') }}</strong> - {{ item.data.end_time.strftime('%H:%M') }}
+                <div class="mt-1">
+                    {{ item.data.content or item.data.rest_way }}
+                </div>
+                <div class="log-actions mt-1">
+                    {% if item.type == 'work' %}
+                    <a href="/work/{{ item.data.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <form method="post" action="/work/{{ item.data.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                        <input type="hidden" name="return_date" value="{{ ds }}">
+                        <button class="btn btn-sm btn-outline-danger">删除</button>
+                    </form>
+                    {% elif item.type == 'study' %}
+                    <a href="/study/{{ item.data.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <form method="post" action="/study/{{ item.data.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                        <input type="hidden" name="return_date" value="{{ ds }}">
+                        <button class="btn btn-sm btn-outline-danger">删除</button>
+                    </form>
+                    {% else %}
+                    <a href="/rest/{{ item.data.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                    <form method="post" action="/rest/{{ item.data.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                        <input type="hidden" name="return_date" value="{{ ds }}">
+                        <button class="btn btn-sm btn-outline-danger">删除</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p class="text-muted py-4 text-center">这一天还没有记录</p>
+        {% endif %}
+    </div>
+
+    <!-- 工作记录 -->
+    <div class="tab-pane fade" id="work">
+        <a href="/work/add?date={{ ds }}" class="btn btn-primary mb-3">+ 添加工作记录</a>
+        {% for log in work_logs %}
+        <div class="log-card">
+            <div class="log-time">{{ log.start_time.strftime('%H:%M') }} - {{ log.end_time.strftime('%H:%M') }}</div>
+            <div class="log-content">{{ log.content }}</div>
+            {% if log.result %}<div class="log-meta">成果：{{ log.result }}</div>{% endif %}
+            {% if log.extra_things %}<div class="log-meta">额外：{{ log.extra_things }}</div>{% endif %}
+            <div class="log-actions">
+                <a href="/work/{{ log.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                <form method="post" action="/work/{{ log.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                    <input type="hidden" name="return_date" value="{{ ds }}">
+                    <button class="btn btn-sm btn-outline-danger">删除</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">暂无工作记录</p>
+        {% endfor %}
+    </div>
+
+    <!-- 学习记录 -->
+    <div class="tab-pane fade" id="study">
+        <a href="/study/add?date={{ ds }}" class="btn btn-primary mb-3">+ 添加学习记录</a>
+        {% for log in study_logs %}
+        <div class="log-card">
+            <div class="log-time">{{ log.start_time.strftime('%H:%M') }} - {{ log.end_time.strftime('%H:%M') }}</div>
+            <div class="log-content">{{ log.content }}</div>
+            {% if log.result %}<div class="log-meta">成果：{{ log.result }}</div>{% endif %}
+            {% if log.extra_things %}<div class="log-meta">额外：{{ log.extra_things }}</div>{% endif %}
+            <div class="log-actions">
+                <a href="/study/{{ log.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                <form method="post" action="/study/{{ log.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                    <input type="hidden" name="return_date" value="{{ ds }}">
+                    <button class="btn btn-sm btn-outline-danger">删除</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">暂无学习记录</p>
+        {% endfor %}
+    </div>
+
+    <!-- 休息记录 -->
+    <div class="tab-pane fade" id="rest">
+        <a href="/rest/add?date={{ ds }}" class="btn btn-primary mb-3">+ 添加休息记录</a>
+        {% for log in rest_logs %}
+        <div class="log-card">
+            <div class="log-time">{{ log.start_time.strftime('%H:%M') }} - {{ log.end_time.strftime('%H:%M') }}</div>
+            <div class="log-content">{{ log.rest_way }}</div>
+            {% if log.remark %}<div class="log-meta">备注：{{ log.remark }}</div>{% endif %}
+            <div class="log-actions">
+                <a href="/rest/{{ log.id }}/edit?date={{ ds }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                <form method="post" action="/rest/{{ log.id }}/delete" onsubmit="return confirm('确定删除？')" class="d-inline">
+                    <input type="hidden" name="return_date" value="{{ ds }}">
+                    <button class="btn btn-sm btn-outline-danger">删除</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">暂无休息记录</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

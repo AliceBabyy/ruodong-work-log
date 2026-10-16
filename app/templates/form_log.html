@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2 class="mb-4">{{ title }}</h2>
+    <form method="post" action="{{ action }}">
+        <div class="mb-3">
+            <label class="form-label">开始时间</label>
+            <input type="datetime-local" name="start_time" class="form-control" required
+                   value="{{ log.start_time.strftime('%Y-%m-%dT%H:%M') if log else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">结束时间</label>
+            <input type="datetime-local" name="end_time" class="form-control" required
+                   value="{{ log.end_time.strftime('%Y-%m-%dT%H:%M') if log else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">这段时间做了什么</label>
+            <textarea name="content" class="form-control" required>{{ log.content if log else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">成果</label>
+            <textarea name="result" class="form-control">{{ log.result if log and log.result else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">中途额外做的事</label>
+            <textarea name="extra_things" class="form-control">{{ log.extra_things if log and log.extra_things else '' }}</textarea>
+        </div>
+        <input type="hidden" name="return_date" value="{{ return_date }}">
+        <button type="submit" class="btn btn-primary w-100">保存</button>
+    </form>
+</div>
+{% endblock %}

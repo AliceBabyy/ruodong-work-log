@@ -1,0 +1,44 @@
+<div class="modal fade" id="editNoteModal{{ note.id }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">编辑便签</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="/todos/{{ note.id }}/edit">
+          <div class="mb-3">
+            <label class="form-label">便签内容（可多行，随记/待办都行）</label>
+            <textarea name="content" class="form-control" rows="4" required>{{ note.content }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">标签（选一个，卡片左上角会显示对应颜色的小点）</label>
+            <div>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="" {% if not note.tag %}checked{% endif %}>
+                <span class="note-tag-swatch swatch-none"></span>无标签
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="note" {% if note.tag == 'note' %}checked{% endif %}>
+                <span class="note-tag-swatch swatch-note"></span>随记
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tag" value="plan" {% if note.tag == 'plan' %}checked{% endif %}>
+                <span class="note-tag-swatch swatch-plan"></span>计划
+              </label>
+            </div>
+          </div>
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" name="pinned" id="editPinned{{ note.id }}" {% if note.pinned %}checked{% endif %}>
+            <label class="form-check-label" for="editPinned{{ note.id }}">置顶此便签</label>
+          </div>
+          <div class="text-end mt-4">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-reset-form>重置</button>
+            <button type="submit" class="btn btn-matcha btn-sm ms-2">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<article class="note-card{% if note.pinned %} pinned{% endif %}{% if hide_after is defined and note_index is defined and note_index >= hide_after %} note-extra{% endif %}">
+    {% if note.pinned %}
+    <svg class="note-pin" viewBox="0 0 16 16" fill="currentColor" aria-label="已置顶">
+        <path d="M9.828.72a.5.5 0 0 1 .354.146l2.952 2.952a.5.5 0 0 1-.353.854H11.3l-1.214 1.545 1.366 1.366a.5.5 0 0 1 0 .707l-.672.672a.5.5 0 0 1-.707 0L8.354 6.153 7.025 7.48a2.5 2.5 0 0 1-1.763.657H4.13l-1.9 1.9a.5.5 0 0 1-.848-.354V7.83a2.5 2.5 0 0 1 .657-1.763l1.328-1.328L1.44 4.33a.5.5 0 0 1 0-.707l.672-.672a.5.5 0 0 1 .707 0l1.366 1.366L5.73 2.103a.5.5 0 0 1 .853.354v1.13a2.5 2.5 0 0 1-.657 1.763l-.132.13 1.323 1.323 2.48-2.48-.53-.531a.5.5 0 0 1 0-.707L9.828.72z"/>
+    </svg>
+    {% endif %}
+    {% if note.tag %}
+    <div class="note-tag-label {{ 'tag-note' if note.tag == 'note' else 'tag-plan' }}">
+        <span class="note-dot {{ 'dot-note' if note.tag == 'note' else 'dot-plan' }}"></span>{{ '随记' if note.tag == 'note' else '计划' }}
+    </div>
+    {% endif %}
+    <div class="note-content">{{ note.content }}</div>
+    <div class="note-actions">
+        <form method="post" action="/todos/{{ note.id }}/toggle-pin" class="d-inline">
+            <button class="note-btn" title="{{ '取消置顶' if note.pinned else '置顶此便签' }}">{{ '取消置顶' if note.pinned else '置顶' }}</button>
+        </form>
+        <button class="note-btn" data-bs-toggle="modal" data-bs-target="#editNoteModal{{ note.id }}">编辑</button>
+        <button type="button" class="note-btn danger" data-bs-toggle="modal" data-bs-target="#deleteNoteModal" data-id="{{ note.id }}">删除</button>
+    </div>
+</article>

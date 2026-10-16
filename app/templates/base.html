@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}工作日志{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3.586a1.5 1.5 0 0 1 1.06.44l1.414 1.414A1.5 1.5 0 0 0 9.014 3.5H13.5A1.5 1.5 0 0 1 15 5v8.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-11z"/>
+            </svg>
+            <span class="brand-text">工作日志</span>
+            <button class="sidebar-toggle" id="sidebarToggle" title="收起侧边栏">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+                    <path fill-rule="evenodd" d="M5 3.5a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1 0-1H5zm0 4a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1 0-1H5zm0 4a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1 0-1H5zm9.854-7.854a.5.5 0 0 1 0 .708L13.207 6l1.647 1.646a.5.5 0 0 1-.708.708l-2-2a.5.5 0 0 1 0-.708l2-2a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/" class="sidebar-item {% block nav_calendar %}{% endblock %}">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5.5 0a.5.5 0 0 1 .5.5V2h4V.5a.5.5 0 0 1 1 0V2h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h2V.5a.5.5 0 0 1 .5-.5zM3 4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H3z"/>
+                </svg>
+                <span class="item-text">月历首页</span>
+            </a>
+
+            <a href="/week" class="sidebar-item {% block nav_week %}{% endblock %}">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h11A1.5 1.5 0 0 1 15 2.5v11a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-11zM2.5 3a.5.5 0 0 0-.5.5V5h12V3.5a.5.5 0 0 0-.5-.5h-11zM14 6h-3v2h3V6zM1 8h5V6H1v2zm6 0h3V6H7v2zM1 10v2.5a.5.5 0 0 0 .5.5H6v-3H1zm5 0v3h3v-3H6zm4 0v3h3.5a.5.5 0 0 0 .5-.5V10h-4z"/>
+                </svg>
+                <span class="item-text">本周总览</span>
+            </a>
+
+            <a href="/todos" class="sidebar-item {% block nav_todos %}{% endblock %}">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M2.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-11zM3 2h10v12H3V2zm2.5 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 7.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1H5zm6.646 1.146a.5.5 0 0 0-.708 0L9.5 10.086l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0 0-.708zM5 11.5a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5z"/>
+                </svg>
+                <span class="item-text">总待办</span>
+            </a>
+
+            {% if current_date %}
+            <div class="sidebar-group">
+                <a class="sidebar-item sidebar-parent" data-bs-toggle="collapse" href="#dayMenu" role="button">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                    </svg>
+                    <span class="item-text">{{ current_date.strftime('%m月%d日') }}</span>
+                    <span class="arrow">▼</span>
+                </a>
+                <div class="collapse show" id="dayMenu">
+                    <a href="/day/{{ current_date.strftime('%Y-%m-%d') }}/timeline"
+                       class="sidebar-subitem {% block nav_timeline %}{% endblock %}">
+                        <svg class="nav-icon sub-icon" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .5-.868L8 8.71V3.5z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                        </svg>
+                        <span class="item-text">时间线</span>
+                    </a>
+                    <a href="/day/{{ current_date.strftime('%Y-%m-%d') }}/work"
+                       class="sidebar-subitem {% block nav_work %}{% endblock %}">
+                        <svg class="nav-icon sub-icon" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5z"/>
+                        </svg>
+                        <span class="item-text">工作记录</span>
+                    </a>
+                    <a href="/day/{{ current_date.strftime('%Y-%m-%d') }}/study"
+                       class="sidebar-subitem {% block nav_study %}{% endblock %}">
+                        <svg class="nav-icon sub-icon" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M1 2.828c.885-.37 2.154-.769 3.788-.899 1.09-.087 2.278-.078 3.539.16 1.26.238 2.495.639 3.634 1.13V14.5a.5.5 0 0 1-.788.407c-.852-.604-2.219-1.154-3.841-1.272-1.082-.083-2.278-.078-3.537.16-1.26.238-2.495.639-3.634 1.13V2.828zM14 13.727V2.118c-.852-.381-2.137-.76-3.754-.889-1.082-.083-2.278-.078-3.537.16-1.26.238-2.495.639-3.634 1.13V13.727a65.23 65.23 0 0 1 3.635-1.113 15.4 15.4 0 0 1 3.539-.16c1.634.13 2.903.52 3.751.873z"/>
+                        </svg>
+                        <span class="item-text">学习记录</span>
+                    </a>
+                    <a href="/day/{{ current_date.strftime('%Y-%m-%d') }}/rest"
+                       class="sidebar-subitem {% block nav_rest %}{% endblock %}">
+                        <svg class="nav-icon sub-icon" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11zM1 5.5A.5.5 0 0 1 1.5 5h13a.5.5 0 0 1 .5.5v7a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5v-7zm1 .5v7A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-7H2z"/>
+                        </svg>
+                        <span class="item-text">休息记录</span>
+                    </a>
+                    <a href="/day/{{ current_date.strftime('%Y-%m-%d') }}/todos"
+                       class="sidebar-subitem {% block nav_todos_day %}{% endblock %}">
+                        <svg class="nav-icon sub-icon" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M2.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-11zM3 2h10v12H3V2zm2.5 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 7.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1H5zm6.646 1.146a.5.5 0 0 0-.708 0L9.5 10.086l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0 0-.708zM5 11.5a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5z"/>
+                        </svg>
+                        <span class="item-text">待办便签</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <button class="sidebar-toggle-main" id="sidebarToggleMain" title="展开侧边栏">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+                <path fill-rule="evenodd" d="M1 2.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+        </button>
+        {% block content %}{% endblock %}
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 全局：表单重置二次确认弹窗 -->
+<div class="modal fade" id="confirmResetModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">确定重置？</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">将清空当前表单中已填写的内容，此操作不可撤销。</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="confirmResetBtn">确定重置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+    const body = document.body;
+    const toggle = document.getElementById('sidebarToggle');
+    const toggleMain = document.getElementById('sidebarToggleMain');
+
+    function setCollapsed(collapsed) {
+        body.classList.toggle('sidebar-collapsed', collapsed);
+        try { localStorage.setItem('sidebar-collapsed', collapsed); } catch(e) {}
+    }
+
+    // 初始化：读 localStorage 或窄屏默认收起
+    let saved = null;
+    try { saved = localStorage.getItem('sidebar-collapsed'); } catch(e) {}
+    if (saved !== null) {
+        setCollapsed(saved === 'true');
+    } else if (window.innerWidth < 768) {
+        setCollapsed(true);
+    }
+
+    toggle.addEventListener('click', () => setCollapsed(true));
+    toggleMain.addEventListener('click', () => setCollapsed(false));
+})();
+
+// 全局：重置按钮 -> 二次确认 -> 清空表单
+(function() {
+    let pendingResetForm = null;
+    const confirmModalEl = document.getElementById('confirmResetModal');
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-reset-form]');
+        if (!btn) return;
+        e.preventDefault();
+        pendingResetForm = btn.closest('form');
+        bootstrap.Modal.getOrCreateInstance(confirmModalEl).show();
+    });
+
+    document.getElementById('confirmResetBtn').addEventListener('click', function() {
+        if (pendingResetForm) {
+            // 清空所有可见的 input / textarea / select，保留 hidden 字段（如 return_date）
+            pendingResetForm.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea, select').forEach(el => {
+                el.value = '';
+            });
+        }
+        bootstrap.Modal.getInstance(confirmModalEl).hide();
+        pendingResetForm = null;
+    });
+})();
+
+// 全局：文本框随内容自动增高（初始保持当前大小，超过后撑高，最高 240px）
+(function() {
+    const MAX_H = 240;
+
+    function grow(el) {
+        // 隐藏元素（如未打开的弹窗）跳过，弹窗打开后再撑开
+        if (!el || el.offsetParent === null) return;
+        if (!el.dataset.growBase) {
+            el.dataset.growBase = el.offsetHeight; // 记录初始高度
+        }
+        el.style.height = 'auto';
+        const h = Math.min(Math.max(parseFloat(el.dataset.growBase), el.scrollHeight), MAX_H);
+        el.style.height = h + 'px';
+        el.style.overflowY = el.scrollHeight > MAX_H ? 'auto' : 'hidden';
+    }
+
+    function growAll(root) {
+        (root || document).querySelectorAll('textarea.form-control').forEach(grow);
+    }
+
+    // 弹窗打开时：按已有内容（如编辑回填）把输入框撑到合适高度
+    document.addEventListener('shown.bs.modal', e => growAll(e.target));
+
+    // 输入时实时撑高
+    document.addEventListener('input', e => {
+        if (e.target && e.target.matches('textarea.form-control')) grow(e.target);
+    });
+
+    // 页面加载（整页表单里的回填内容）与窗口尺寸变化时校正
+    growAll();
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(growAll, 150);
+    });
+})();
+</script>
+</body>
+</html>

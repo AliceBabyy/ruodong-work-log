@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ year }}年{{ month }}月 · 工作日志{% endblock %}
+{% block content %}
+<div class="calendar-grid">
+    <div class="calendar-header">
+        <a href="/?year={{ prev_date.year }}&month={{ prev_date.month }}" class="btn btn-light btn-sm">← 上月</a>
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="calendar-title mb-0">{{ year }}年 {{ month }}月</h2>
+            <a href="/week" class="btn btn-outline-success btn-sm">进入本周 →</a>
+        </div>
+        <a href="/?year={{ next_date.year }}&month={{ next_date.month }}" class="btn btn-light btn-sm">下月 →</a>
+    </div>
+    <div class="calendar-weekdays">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+    </div>
+    <div class="calendar-days">
+        {% for week in grid %}
+            {% for cell in week %}
+            {% set d = cell.date %}
+            <a href="/day/{{ d.strftime('%Y-%m-%d') }}"
+               class="calendar-day
+                      {% if not cell.in_month %}other-month{% endif %}
+                      {% if cell.is_today %}today{% endif %}
+                      {% if cell.is_holiday %}holiday{% endif %}
+                      {% if cell.is_makeup_workday %}makeup-workday{% endif %}"
+               {% if cell.holiday_name_cn %}title="{{ cell.holiday_name_cn }}"{% endif %}>
+                {{ d.day }}
+                {% if cell.is_holiday %}<span class="hol-tag">{{ cell.holiday_name_cn or '假' }}</span>{% endif %}
+                {% if cell.is_makeup_workday %}<span class="work-tag">班</span>{% endif %}
+                {% if cell.has_record %}<span class="dot"></span>{% endif %}
+            </a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
