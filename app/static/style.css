@@ -1072,3 +1072,10 @@ body.sidebar-collapsed .sidebar-toggle-main {
 #deleteNoteModal .modal-footer {
     padding: 6px 24px 28px;
 }
+
+/* 删除确认弹窗按钮：文字与正文同大，按钮本身更小巧 */
+#deleteNoteModal .btn-delete-mini {
+    font-size: 1rem;
+    padding: 3px 16px;
+    line-height: 1.5;
+}
