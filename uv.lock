@@ -34,6 +34,15 @@ wheels = [
 ]
 
 [[package]]
+name = "chinesecalendar"
+version = "1.11.0"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple/" }
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/ac/6f/c14fe8aedc706fab826c0ae7fccd1c8f69610254dcb004cd386a0662b3d5/chinesecalendar-1.11.0.tar.gz", hash = "sha256:1b85d920ffee8e19a98a2a27a699a99f39ca224b3b1096aa574384d3837f5492" }
+wheels = [
+    { url = "https://mirrors.aliyun.com/pypi/packages/19/e7/8f0215070e3a154e861a5838282f493649fa6ebcee01c9e919922917bd25/chinesecalendar-1.11.0-py2.py3-none-any.whl", hash = "sha256:9479ead6010e6001472efdf97317699882c16604c7858ba26862dc9d36d56d46" },
+]
+
+[[package]]
 name = "click"
 version = "8.5.0"
 source = { registry = "https://mirrors.aliyun.com/pypi/simple/" }
@@ -556,6 +565,7 @@ name = "ruodong-work-log"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "chinesecalendar" },
     { name = "fastapi" },
     { name = "jinja2" },
     { name = "psycopg2-binary" },
@@ -567,6 +577,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "chinesecalendar", specifier = ">=1.11.0" },
     { name = "fastapi", specifier = ">=0.143.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "psycopg2-binary", specifier = ">=2.9.13" },
