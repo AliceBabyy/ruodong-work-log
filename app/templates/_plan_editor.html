@@ -1,0 +1,26 @@
+{# 计划类型便签的编辑区：标题 + 逐条计划项（每条输入框 + 对勾保存 + 删除）
+   需要调用方先设置：prefill_title / prefill_items / prefill_checks #}
+<div class="mb-3">
+    <label class="form-label">便签标题</label>
+    <input type="text" name="title" class="form-control" placeholder="给这组计划起个标题（可留空）" value="{{ prefill_title }}">
+</div>
+<div class="mb-3 d-flex align-items-center justify-content-between plan-btn-row">
+    <button type="button" class="btn btn-sm btn-add-plan plan-add">+ 添加计划</button>
+    <span class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm plan-batch-toggle">批量删除</button>
+        <button type="button" class="btn btn-sm plan-select-all" style="display:none">全选</button>
+        <button type="button" class="btn btn-sm plan-cancel-batch" style="display:none">取消</button>
+        <button type="button" class="btn btn-sm plan-delete-selected" style="display:none">确定删除</button>
+    </span>
+</div>
+<div class="plan-editor-list">
+    {% for item in prefill_items %}
+    <div class="plan-editor-row{% if prefill_checks[loop.index0] %} item-done{% endif %}">
+        <input type="checkbox" class="plan-batch-check" title="选择此行">
+        <input type="text" name="items" class="form-control form-control-sm" value="{{ item }}" placeholder="输入计划内容">
+        <input type="hidden" name="item_done" value="{% if prefill_checks[loop.index0] %}1{% else %}0{% endif %}">
+        <button type="button" class="plan-reset" title="重置这条">重置</button>
+        <button type="button" class="plan-del" title="删除这条">删除</button>
+    </div>
+    {% endfor %}
+</div>

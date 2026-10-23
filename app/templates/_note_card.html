@@ -9,7 +9,20 @@
         <span class="note-dot {{ 'dot-note' if note.tag == 'note' else 'dot-plan' }}"></span>{{ '随记' if note.tag == 'note' else '计划' }}
     </div>
     {% endif %}
+    {% if note.tag == 'plan' %}
+    <div class="note-content note-plan-list">
+        {% if note.title %}<div class="plan-title">{{ note.title }}</div>{% endif %}
+        {% for line in note.content.split('\n') %}
+        {% set line_idx = loop.index0 %}
+        <label class="plan-item{% if note.checks_list[line_idx] %} done{% endif %}">
+            <input type="checkbox" class="plan-check" data-id="{{ note.id }}" data-line="{{ line_idx }}"{% if note.checks_list[line_idx] %} checked{% endif %}>
+            <span class="plan-text">{{ line }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    {% else %}
     <div class="note-content">{{ note.content }}</div>
+    {% endif %}
     <div class="note-actions">
         <form method="post" action="/todos/{{ note.id }}/toggle-pin" class="d-inline">
             <button class="note-btn" title="{{ '取消置顶' if note.pinned else '置顶此便签' }}">{{ '取消置顶' if note.pinned else '置顶' }}</button>

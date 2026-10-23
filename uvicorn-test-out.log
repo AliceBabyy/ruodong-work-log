@@ -1,0 +1,28 @@
+INFO:     127.0.0.1:53960 - "GET / HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53961 - "POST /register HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53962 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53963 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53964 - "POST /work/add HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53965 - "GET /day/2026-10-22/work HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53966 - "POST /logout HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53967 - "POST /register HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53968 - "GET /day/2026-10-22/work HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53971 - "GET /work/35/edit HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53972 - "POST /work/35/delete HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53973 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53974 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:53977 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53978 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53979 - "GET /week HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53980 - "GET /week/2026-10-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53981 - "GET /todos HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53982 - "GET /day/2026-10-22/timeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53983 - "GET /day/2026-10-22/work HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET /day/2026-10-22/study HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53985 - "GET /day/2026-10-22/rest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53986 - "GET /day/2026-10-22/todos HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53987 - "GET /work/add HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53988 - "GET /study/add HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53989 - "GET /rest/add HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53990 - "GET /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:53991 - "GET /register HTTP/1.1" 303 See Other

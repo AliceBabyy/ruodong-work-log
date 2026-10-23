@@ -7,22 +7,37 @@
       </div>
       <div class="modal-body">
         <form method="post" action="/todos/{{ note.id }}/edit">
-          <div class="mb-3">
-            <label class="form-label">便签内容（可多行，随记/待办都行）</label>
-            <textarea name="content" class="form-control" rows="4" required>{{ note.content }}</textarea>
+          <div class="note-text-editor{% if note.tag == 'plan' %}" style="display:none"{% endif %}>
+            <div class="mb-3">
+              <label class="form-label">便签内容（可多行，随记/待办都行）</label>
+              <textarea name="content" class="form-control" rows="4" required>{{ note.content }}</textarea>
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">标签（选一个，卡片左上角会显示对应颜色的小点）</label>
-            <div>
-              <label class="form-check form-check-inline">
+          {% if note.tag == 'plan' %}
+          {% set prefill_title = note.title or '' %}
+          {% set prefill_items = note.content.split('\n') %}
+          {% set prefill_checks = note.checks_list %}
+          {% include "_plan_editor.html" %}
+          {% else %}
+          {% set prefill_title = '' %}
+          {% set prefill_items = [] %}
+          {% set prefill_checks = [] %}
+          <div class="plan-editor" style="display:none">
+            {% include "_plan_editor.html" %}
+          </div>
+          {% endif %}
+          <div class="mb-4">
+            <label class="form-label">标签</label>
+            <div class="tag-options">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="" {% if not note.tag %}checked{% endif %}>
                 <span class="note-tag-swatch swatch-none"></span>无标签
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="note" {% if note.tag == 'note' %}checked{% endif %}>
                 <span class="note-tag-swatch swatch-note"></span>随记
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="plan" {% if note.tag == 'plan' %}checked{% endif %}>
                 <span class="note-tag-swatch swatch-plan"></span>计划
               </label>

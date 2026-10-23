@@ -48,22 +48,30 @@
         <form method="post" action="/todos/add">
           <input type="hidden" name="scope" value="daily">
           <input type="hidden" name="note_date" value="{{ ds }}">
-          <div class="mb-3">
-            <label class="form-label">便签内容（可多行，随记/待办都行）</label>
-            <textarea name="content" class="form-control" rows="4" required placeholder="想记什么？"></textarea>
+          <div class="note-text-editor">
+            <div class="mb-3">
+              <label class="form-label">便签内容（可多行，随记/待办都行）</label>
+              <textarea name="content" class="form-control" rows="4" required placeholder="想记什么？"></textarea>
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">标签（选一个，卡片左上角会显示对应颜色的小点）</label>
-            <div>
-              <label class="form-check form-check-inline">
+          {% set prefill_title = '' %}
+          {% set prefill_items = [] %}
+          {% set prefill_checks = [] %}
+          <div class="plan-editor" style="display:none">
+            {% include "_plan_editor.html" %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label">标签</label>
+            <div class="tag-options">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="" checked>
                 <span class="note-tag-swatch swatch-none"></span>无标签
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="note">
                 <span class="note-tag-swatch swatch-note"></span>随记
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check">
                 <input class="form-check-input" type="radio" name="tag" value="plan">
                 <span class="note-tag-swatch swatch-plan"></span>计划
               </label>

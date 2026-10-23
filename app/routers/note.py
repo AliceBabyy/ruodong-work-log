@@ -1,11 +1,12 @@
-from datetime import date, datetime
+from datetime import date
 
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.database import get_db
-from app.models import DailyNote, WeeklyNote
+from app.models import DailyNote, User, WeeklyNote
 
 router = APIRouter()
 
@@ -16,16 +17,21 @@ def save_daily_note(
     summary: str = Form(""),
     plan_tomorrow: str = Form(""),
     return_date: str | None = Form(None),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """保存（或更新）某天的日小结。一天只有一条。"""
+    """保存（或更新）某天的日小结。同一用户同一天只有一条。"""
     d = date.fromisoformat(note_date)
     summary = summary.strip() or None
     plan_tomorrow = plan_tomorrow.strip() or None
 
-    note = db.query(DailyNote).filter(DailyNote.note_date == d).one_or_none()
+    note = (
+        db.query(DailyNote)
+        .filter(DailyNote.user_id == user.id, DailyNote.note_date == d)
+        .one_or_none()
+    )
     if note is None:
-        note = DailyNote(note_date=d)
+        note = DailyNote(user_id=user.id, note_date=d)
         db.add(note)
     note.summary = summary
     note.plan_tomorrow = plan_tomorrow
@@ -41,16 +47,21 @@ def save_weekly_note(
     week_summary: str = Form(""),
     next_week_plan: str = Form(""),
     return_week: str | None = Form(None),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """保存（或更新）某一周的周小结。一周只有一条。"""
+    """保存（或更新）某一周的周小结。同一用户同一周只有一条。"""
     ws = date.fromisoformat(week_start)
     week_summary = week_summary.strip() or None
     next_week_plan = next_week_plan.strip() or None
 
-    note = db.query(WeeklyNote).filter(WeeklyNote.week_start == ws).one_or_none()
+    note = (
+        db.query(WeeklyNote)
+        .filter(WeeklyNote.user_id == user.id, WeeklyNote.week_start == ws)
+        .one_or_none()
+    )
     if note is None:
-        note = WeeklyNote(week_start=ws)
+        note = WeeklyNote(user_id=user.id, week_start=ws)
         db.add(note)
     note.week_summary = week_summary
     note.next_week_plan = next_week_plan

@@ -492,28 +492,30 @@ body {
 }
 
 .form-label {
-    font-size: 0.82rem;
-    color: #666;
+    font-size: 0.78rem;
+    color: #888;
     font-weight: 400;
+    letter-spacing: 0.02em;
     margin-bottom: 6px;
 }
 
 textarea.form-control {
     resize: none;
-    min-height: 70px;
+    min-height: 88px;
     max-height: 240px;
     transition: height 0.12s ease;
 }
 
 .form-control {
     border-radius: 6px;
-    border-color: #e8e8e8;
+    border-color: #e4e4e4;
     font-size: 0.88rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-control:focus {
     border-color: #7ba070;
-    box-shadow: 0 0 0 2px rgba(123,160,112,0.12);
+    box-shadow: 0 0 0 2px rgba(123,160,112,0.10);
 }
 
 .btn-primary {
@@ -534,11 +536,52 @@ textarea.form-control {
     color: #fff;
     border-radius: 6px;
     font-size: 0.82rem;
+    padding: 6px 20px;
 }
 
 .btn-matcha:hover {
     background: #6c8f62;
     color: #fff;
+}
+
+/* 弹窗内的表单控件：单选/复选统一主题色，标签弱化 */
+.modal .form-check-input {
+    accent-color: #7ba070;
+    cursor: pointer;
+}
+
+.modal .form-check-label {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* 取消按钮：弱化、克制的浅灰 */
+.modal .btn-light {
+    background: #f5f5f5;
+    border: 1px solid #ececec;
+    color: #666;
+    border-radius: 6px;
+    font-size: 0.82rem;
+}
+
+.modal .btn-light:hover {
+    background: #ececec;
+    border-color: #e2e2e2;
+    color: #444;
+}
+
+/* 次级按钮：细边框、中性灰 */
+.modal .btn-outline-secondary {
+    border-color: #e2e2e2;
+    color: #666;
+    border-radius: 6px;
+    font-size: 0.82rem;
+}
+
+.modal .btn-outline-secondary:hover {
+    background: #f6f6f6;
+    border-color: #d5d5d5;
+    color: #444;
 }
 
 /* 全局去掉加粗 */
@@ -559,24 +602,72 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* 弹窗 */
+.modal-dialog {
+    max-width: 540px;
+}
+
 .modal-content {
-    border-radius: 10px;
+    border-radius: 8px;
     border: none;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.09);
 }
 
 .modal-header {
     border-bottom: 1px solid #f0f0f0;
-    padding: 16px 24px;
+    padding: 18px 24px;
 }
 
 .modal-title {
-    font-size: 0.95rem;
-    font-weight: 400;
+    font-size: 1rem;
+    font-weight: 500 !important;
+    color: #222;
+    letter-spacing: 0.01em;
 }
 
 .modal-body {
-    padding: 24px;
+    padding: 24px 24px 30px;
+}
+
+.modal .btn-close {
+    opacity: 0.55;
+}
+
+.modal .btn-close:hover {
+    opacity: 0.9;
+}
+
+/* 标签选择：胶囊单选，选中态淡抹茶绿 */
+.tag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-options .form-check {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ececec;
+    border-radius: 999px;
+    padding: 5px 14px;
+    margin: 0;
+    cursor: pointer;
+    color: #666;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.tag-options .form-check:hover {
+    border-color: #d8d8d8;
+    background: #fafafa;
+}
+
+.tag-options .form-check:has(input:checked) {
+    border-color: #7ba070;
+    background: #f5f8f3;
+    color: #5f8a56;
+}
+
+.tag-options .form-check-input {
+    display: none;
 }
 
 /* ===== 侧边栏收起状态 ===== */
@@ -988,6 +1079,232 @@ body.sidebar-collapsed .sidebar-toggle-main {
     padding-right: 4px;
 }
 
+/* 计划便签：按行渲染的可打钩待办项 */
+.note-plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.plan-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    cursor: pointer;
+    line-height: 1.5;
+    padding: 1px 0;
+}
+
+.plan-item .plan-check {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    accent-color: #7ba070;
+    cursor: pointer;
+}
+
+.plan-item .plan-text {
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #333;
+}
+
+/* 勾选完成：整行浅灰 + 文字灰色删除线 */
+.plan-item.done {
+    background: #f2f2f2;
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin: 1px -8px;
+}
+
+.plan-item.done .plan-text {
+    color: #9c9c9c;
+    text-decoration: line-through;
+}
+
+/* 计划便签卡片内的标题 */
+.plan-title {
+    font-size: 0.93rem;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+/* 计划编辑区：标题 + 逐条计划项 */
+.plan-editor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.plan-editor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plan-editor-row input[type="text"] {
+    flex: 1;
+}
+
+.plan-editor-row.item-done input[type="text"] {
+    color: #9c9c9c;
+    text-decoration: line-through;
+}
+
+/* 计划行内操作按钮：重置 / 删除 */
+.plan-reset,
+.plan-del {
+    flex-shrink: 0;
+    border: 1px solid #e3e3e3;
+    background: #fff;
+    color: #8a8a8a;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    transition: all 0.15s ease;
+}
+
+.plan-reset:hover {
+    color: #7ba070;
+    border-color: #7ba070;
+}
+
+.plan-del:hover {
+    color: #e27c79;
+    border-color: #e27c79;
+}
+
+/* 批量删除按钮组：进入批量模式后整体右对齐 */
+form.batch-mode .plan-btn-row {
+    justify-content: flex-end !important;
+}
+
+.plan-batch-toggle,
+.plan-select-all {
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #666;
+    border-radius: 8px;
+    padding: 3px 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    transition: all 0.15s ease;
+}
+
+.plan-batch-toggle:hover,
+.plan-select-all:hover {
+    border-color: #7ba070;
+    color: #7ba070;
+}
+
+/* 取消：红边框红字 */
+.plan-cancel-batch {
+    border: 1px solid #e27c79;
+    background: #fff;
+    color: #e27c79;
+    border-radius: 8px;
+    padding: 3px 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    transition: all 0.15s ease;
+}
+
+.plan-cancel-batch:hover {
+    background: #fdf1f0;
+    border-color: #d9534f;
+    color: #d9534f;
+}
+
+/* 确定删除：红色背景 */
+.plan-delete-selected {
+    background: #d9534f;
+    border: 1px solid #d9534f;
+    color: #fff;
+    border-radius: 8px;
+    padding: 3px 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    transition: all 0.15s ease;
+}
+
+.plan-delete-selected:hover {
+    background: #c9302c;
+    border-color: #c9302c;
+}
+
+/* 批量删除模式：行首圆圈勾选框 */
+.plan-batch-check {
+    display: none;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #d5d5d5;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    margin: 0;
+    transition: all 0.15s ease;
+}
+
+form.batch-mode .plan-batch-check {
+    display: inline-block;
+}
+
+.plan-batch-check:hover {
+    border-color: #7ba070;
+}
+
+.plan-batch-check:checked {
+    background: #7ba070;
+    border-color: #7ba070;
+}
+
+.plan-batch-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* 批量模式下行首圆圈出现时，隐藏行内重置/删除按钮，避免操作混淆 */
+form.batch-mode .plan-reset,
+form.batch-mode .plan-del {
+    display: none;
+}
+
+/* 批量模式下被勾选的行：淡抹茶绿底 */
+.plan-editor-row:has(.plan-batch-check:checked) {
+    background: #f5f8f3;
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin: 1px -8px;
+}
+
+.btn-add-plan {
+    color: #7ba070;
+    border: 1px dashed #7ba070;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    padding: 4px 14px;
+}
+
+.btn-add-plan:hover {
+    background: #f4f8f2;
+    color: #5f8a56;
+}
+
 .note-actions {
     display: flex;
     gap: 10px;
@@ -1078,4 +1395,116 @@ body.sidebar-collapsed .sidebar-toggle-main {
     font-size: 1rem;
     padding: 3px 16px;
     line-height: 1.5;
+}
+
+/* ===== 登录/注册页 ===== */
+.auth-body {
+    background: #fafafa;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-wrap {
+    width: 100%;
+    max-width: 380px;
+}
+
+.auth-card {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 36px 32px 28px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.auth-brand {
+    font-size: 1.5rem;
+    color: #2d3436;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+.auth-subtitle {
+    font-size: 0.85rem;
+    color: #999;
+    text-align: center;
+    margin: 6px 0 22px;
+}
+
+.auth-error {
+    background: #fdf0f0;
+    border: 1px solid #f5c6c6;
+    color: #b3403a;
+    border-radius: 6px;
+    font-size: 0.83rem;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+.auth-hint {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    margin-top: 6px;
+}
+
+.auth-footer {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #999;
+    margin-top: 18px;
+}
+
+.auth-footer a {
+    color: #7ba070;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===== 侧边栏底部用户区 ===== */
+.sidebar-user {
+    margin-top: auto;
+    padding: 12px 14px;
+    border-top: 1px solid #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sidebar-user .user-name {
+    font-size: 0.8rem;
+    color: #555;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-user .logout-btn {
+    font-size: 0.75rem;
+    color: #999;
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.sidebar-user .logout-btn:hover {
+    color: #b3403a;
+    background: #fdf0f0;
 }

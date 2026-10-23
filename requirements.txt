@@ -6,3 +6,5 @@ jinja2
 python-multipart
 pydantic-settings
 chinesecalendar
+bcrypt>=5.0.0
+itsdangerous>=2.2.0

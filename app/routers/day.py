@@ -5,46 +5,63 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.database import get_db
-from app.models import DailyNote, RestLog, StudyLog, WorkLog
+from app.models import DailyNote, RestLog, StudyLog, User, WorkLog
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-def _get_day_logs(db: Session, target_date: date):
+def _get_day_logs(db: Session, target_date: date, user_id: int):
     day_start = datetime.combine(target_date, datetime.min.time())
     day_end = day_start + timedelta(days=1)
 
     work_logs = (
         db.query(WorkLog)
-        .where(WorkLog.start_time >= day_start, WorkLog.start_time < day_end)
+        .where(
+            WorkLog.user_id == user_id,
+            WorkLog.start_time >= day_start,
+            WorkLog.start_time < day_end,
+        )
         .order_by(WorkLog.start_time)
         .all()
     )
     study_logs = (
         db.query(StudyLog)
-        .where(StudyLog.start_time >= day_start, StudyLog.start_time < day_end)
+        .where(
+            StudyLog.user_id == user_id,
+            StudyLog.start_time >= day_start,
+            StudyLog.start_time < day_end,
+        )
         .order_by(StudyLog.start_time)
         .all()
     )
     rest_logs = (
         db.query(RestLog)
-        .where(RestLog.start_time >= day_start, RestLog.start_time < day_end)
+        .where(
+            RestLog.user_id == user_id,
+            RestLog.start_time >= day_start,
+            RestLog.start_time < day_end,
+        )
         .order_by(RestLog.start_time)
         .all()
     )
     return work_logs, study_logs, rest_logs
 
 
-def _get_notes(db: Session, target_date: date):
+def _get_notes(db: Session, target_date: date, user_id: int):
     """返回 (当天的 DailyNote, 昨天的 plan_tomorrow)。"""
     today_note = (
-        db.query(DailyNote).filter(DailyNote.note_date == target_date).one_or_none()
+        db.query(DailyNote)
+        .filter(DailyNote.user_id == user_id, DailyNote.note_date == target_date)
+        .one_or_none()
     )
     yesterday = target_date - timedelta(days=1)
     yesterday_note = (
-        db.query(DailyNote).filter(DailyNote.note_date == yesterday).one_or_none()
+        db.query(DailyNote)
+        .filter(DailyNote.user_id == user_id, DailyNote.note_date == yesterday)
+        .one_or_none()
     )
     yesterday_plan = yesterday_note.plan_tomorrow if yesterday_note else None
     return today_note, yesterday_plan
@@ -100,10 +117,15 @@ def day_root(date_str: str):
 
 
 @router.get("/day/{date_str}/timeline")
-def timeline(request: Request, date_str: str, db: Session = Depends(get_db)):
+def timeline(
+    request: Request,
+    date_str: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    work_logs, study_logs, rest_logs = _get_day_logs(db, target_date)
-    today_note, yesterday_plan = _get_notes(db, target_date)
+    work_logs, study_logs, rest_logs = _get_day_logs(db, target_date, user.id)
+    today_note, yesterday_plan = _get_notes(db, target_date, user.id)
 
     timeline = []
     for log in work_logs:
@@ -130,9 +152,14 @@ def timeline(request: Request, date_str: str, db: Session = Depends(get_db)):
 
 
 @router.get("/day/{date_str}/work")
-def work_list(request: Request, date_str: str, db: Session = Depends(get_db)):
+def work_list(
+    request: Request,
+    date_str: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    work_logs, _, _ = _get_day_logs(db, target_date)
+    work_logs, _, _ = _get_day_logs(db, target_date, user.id)
     ds = target_date.strftime("%Y-%m-%d")
     return templates.TemplateResponse(
         request,
@@ -149,9 +176,14 @@ def work_list(request: Request, date_str: str, db: Session = Depends(get_db)):
 
 
 @router.get("/day/{date_str}/study")
-def study_list(request: Request, date_str: str, db: Session = Depends(get_db)):
+def study_list(
+    request: Request,
+    date_str: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    _, study_logs, _ = _get_day_logs(db, target_date)
+    _, study_logs, _ = _get_day_logs(db, target_date, user.id)
     ds = target_date.strftime("%Y-%m-%d")
     return templates.TemplateResponse(
         request,
@@ -168,9 +200,14 @@ def study_list(request: Request, date_str: str, db: Session = Depends(get_db)):
 
 
 @router.get("/day/{date_str}/rest")
-def rest_list(request: Request, date_str: str, db: Session = Depends(get_db)):
+def rest_list(
+    request: Request,
+    date_str: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    _, _, rest_logs = _get_day_logs(db, target_date)
+    _, _, rest_logs = _get_day_logs(db, target_date, user.id)
     ds = target_date.strftime("%Y-%m-%d")
     return templates.TemplateResponse(
         request,

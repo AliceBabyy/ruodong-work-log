@@ -7,8 +7,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.database import get_db
-from app.models import RestLog, StudyLog, WorkLog
+from app.models import RestLog, StudyLog, User, WorkLog
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -53,6 +54,7 @@ def _describe_day(d: date) -> dict:
 @router.get("/")
 def index(
     request: Request,
+    user: User = Depends(get_current_user),
     year: int | None = None,
     month: int | None = None,
     db: Session = Depends(get_db),
@@ -68,10 +70,11 @@ def index(
     else:
         end_of_month = datetime(year, month + 1, 1)
 
-    # 查本月有记录的日期
+    # 查本月有记录的日期（当前用户的）
     def _collect_dates(model):
         rows = db.execute(
             select(model.start_time).where(
+                model.user_id == user.id,
                 model.start_time >= start_of_month,
                 model.start_time < end_of_month,
             )

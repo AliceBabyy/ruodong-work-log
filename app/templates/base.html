@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}工作日志{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/bootstrap.min.css" rel="stylesheet">
     <link href="/static/style.css" rel="stylesheet">
 </head>
 <body>
@@ -94,6 +94,13 @@
             </div>
             {% endif %}
         </nav>
+        <!-- 底部用户区 -->
+        <div class="sidebar-user">
+            <span class="user-name">{{ request.session.get('username', '') }}</span>
+            <form method="post" action="/logout" class="d-inline">
+                <button type="submit" class="logout-btn" title="退出登录">退出</button>
+            </form>
+        </div>
     </aside>
 
     <!-- 主内容区 -->
@@ -106,7 +113,7 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/vendor/bootstrap.bundle.min.js"></script>
 
 <!-- 全局：表单重置二次确认弹窗 -->
 <div class="modal fade" id="confirmResetModal" tabindex="-1">
@@ -210,6 +217,169 @@
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(growAll, 150);
+    });
+})();
+
+// 计划便签：勾选/取消某行待办（乐观更新，失败回滚）
+(function() {
+    document.addEventListener('change', function(e) {
+        const cb = e.target;
+        if (!cb.classList || !cb.classList.contains('plan-check')) return;
+        const item = cb.closest('.plan-item');
+        const apply = () => { if (item) item.classList.toggle('done', cb.checked); };
+        apply(); // 先按用户意图更新样式
+        fetch('/todos/' + encodeURIComponent(cb.dataset.id) + '/toggle-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'line=' + encodeURIComponent(cb.dataset.line)
+        }).then(r => r.json()).then(d => {
+            if (!d || d.ok !== true) { cb.checked = !cb.checked; apply(); }
+        }).catch(() => { cb.checked = !cb.checked; apply(); });
+    });
+})();
+
+// 计划编辑区：标签切换「普通文本框 / 标题+逐条计划项」
+(function() {
+    // 根据当前选中的标签同步两个编辑区：
+    // 隐藏 textarea 的同时必须 disabled 它——display:none 的元素仍会参与
+    // required 校验，空 content 会把 form 提交拦截（表现为“保存点不动”）。
+    window.syncTodoEditors = function(form, isPlan) {
+        const textEditor = form.querySelector('.note-text-editor');
+        const planEditor = form.querySelector('.plan-editor'); // 新增弹窗的隐藏容器；编辑弹窗可能没有
+        if (textEditor) {
+            const ta = textEditor.querySelector('textarea');
+            textEditor.style.display = isPlan ? 'none' : '';
+            if (ta) {
+                ta.disabled = isPlan;
+                if (isPlan) ta.removeAttribute('required');
+                else ta.setAttribute('required', '');
+            }
+        }
+        if (planEditor) {
+            planEditor.style.display = isPlan ? '' : 'none';
+        }
+        if (isPlan) {
+            ensurePlanRows(form); // form 内查找计划列表，新增/编辑弹窗通用
+        }
+    };
+
+    document.addEventListener('change', function(e) {
+        const radio = e.target;
+        if (!radio || radio.name !== 'tag') return;
+        const form = radio.closest('form');
+        if (!form) return;
+        const checked = form.querySelector('input[name="tag"]:checked');
+        syncTodoEditors(form, !!(checked && checked.value === 'plan'));
+    });
+})();
+
+// 计划编辑区：添加/重置/删除单条/批量删除
+(function() {
+    function newRow() {
+        const row = document.createElement('div');
+        row.className = 'plan-editor-row';
+        row.innerHTML =
+            '<input type="checkbox" class="plan-batch-check" title="选择此行">' +
+            '<input type="text" name="items" class="form-control form-control-sm" placeholder="输入计划内容">' +
+            '<input type="hidden" name="item_done" value="0">' +
+            '<button type="button" class="plan-reset" title="重置这条">重置</button>' +
+            '<button type="button" class="plan-del" title="删除这条">删除</button>';
+        return row;
+    }
+
+    // 以 form 为容器追加一行计划（新增弹窗 / 编辑弹窗通用）
+    window.appendPlanRow = function(form) {
+        const list = form.querySelector('.plan-editor-list');
+        if (!list) return;
+        const row = newRow();
+        list.appendChild(row);
+        row.querySelector('input[type="text"]').focus();
+    };
+
+    // 计划列表为空时补一行（兼容编辑弹窗无 .plan-editor 包装容器）
+    window.ensurePlanRows = function(root) {
+        const list = root.querySelector('.plan-editor-list');
+        if (list && list.querySelectorAll('.plan-editor-row').length === 0) {
+            appendPlanRow(root);
+        }
+    };
+
+    // 批量删除模式：每行前显示圆圈勾选框，显示 全选/取消/确定删除
+    function setBatchMode(form, on) {
+        form.classList.toggle('batch-mode', on);
+        const q = s => form.querySelector(s);
+        const add = q('.plan-add');
+        const toggle = q('.plan-batch-toggle');
+        const selAll = q('.plan-select-all');
+        const cancel = q('.plan-cancel-batch');
+        const delSel = q('.plan-delete-selected');
+        if (add) add.style.display = on ? 'none' : '';
+        if (toggle) toggle.style.display = on ? 'none' : '';
+        if (selAll) selAll.style.display = on ? '' : 'none';
+        if (cancel) cancel.style.display = on ? '' : 'none';
+        if (delSel) delSel.style.display = on ? '' : 'none';
+        if (!on) form.querySelectorAll('.plan-batch-check').forEach(cb => cb.checked = false);
+    }
+
+    document.addEventListener('click', function(e) {
+        const addBtn = e.target.closest('.plan-add');
+        if (addBtn) {
+            e.preventDefault();
+            const form = addBtn.closest('form');
+            if (form) appendPlanRow(form);
+            return;
+        }
+        const resetBtn = e.target.closest('.plan-reset');
+        if (resetBtn) {
+            const row = resetBtn.closest('.plan-editor-row');
+            row.classList.remove('saved', 'item-done');
+            const input = row.querySelector('input[name="items"]');
+            if (input) input.value = '';
+            const done = row.querySelector('input[name="item_done"]');
+            if (done) done.value = '0';
+            return;
+        }
+        const delBtn = e.target.closest('.plan-del');
+        if (delBtn) {
+            delBtn.closest('.plan-editor-row').remove();
+            return;
+        }
+        const batchBtn = e.target.closest('.plan-batch-toggle');
+        if (batchBtn) {
+            setBatchMode(batchBtn.closest('form'), true);
+            return;
+        }
+        const selAll = e.target.closest('.plan-select-all');
+        if (selAll) {
+            selAll.closest('form').querySelectorAll('.plan-batch-check').forEach(cb => cb.checked = true);
+            return;
+        }
+        const cancelBatch = e.target.closest('.plan-cancel-batch');
+        if (cancelBatch) {
+            setBatchMode(cancelBatch.closest('form'), false);
+            return;
+        }
+        const delSel = e.target.closest('.plan-delete-selected');
+        if (delSel) {
+            const form = delSel.closest('form');
+            form.querySelectorAll('.plan-editor-row').forEach(row => {
+                const cb = row.querySelector('.plan-batch-check');
+                if (cb && cb.checked) row.remove();
+            });
+            setBatchMode(form, false);
+        }
+    });
+
+    // 弹窗打开时：按当前选中的标签同步「普通文本框 / 计划编辑区」的显隐。
+    // 浏览器会记忆 radio 选中状态（关闭再打开仍保持），必须重新同步，否则
+    // 计划模式下空 textarea 的 required 校验会拦截保存提交。
+    document.addEventListener('shown.bs.modal', function(e) {
+        const root = e.target;
+        if (!root || !root.querySelector) return;
+        const form = root.querySelector('form');
+        if (!form) return;
+        const checked = form.querySelector('input[name="tag"]:checked');
+        syncTodoEditors(form, !!(checked && checked.value === 'plan'));
     });
 })();
 </script>

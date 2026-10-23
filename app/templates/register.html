@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 · 工作日志</title>
+    <link href="/static/vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body class="auth-body">
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-brand">工作日志</div>
+        <div class="auth-subtitle">注册一个账号</div>
+
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/register">
+            <div class="mb-3">
+                <label class="form-label" for="username">用户名</label>
+                <input class="form-control" type="text" id="username" name="username"
+                       value="{{ username }}" required autofocus autocomplete="username">
+                <div class="auth-hint">2-50 位，中英文、数字或下划线</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">密码</label>
+                <input class="form-control" type="password" id="password" name="password"
+                       required autocomplete="new-password">
+                <div class="auth-hint">至少 6 位</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="confirm_password">确认密码</label>
+                <input class="form-control" type="password" id="confirm_password" name="confirm_password"
+                       required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-matcha auth-submit">注 册</button>
+        </form>
+
+        <div class="auth-footer">
+            已有账号？<a href="/login">去登录</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
