@@ -1008,6 +1008,13 @@ body.sidebar-collapsed .sidebar-toggle-main {
     transition: box-shadow 0.15s ease;
 }
 
+/* 待办便签卡：固定 3:4 宽高比（宽度随网格不变，高度=宽度×4/3），内容超出截断 */
+.note-grid .note-card {
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+    overflow: hidden;
+}
+
 .note-card:hover {
     box-shadow: 0 3px 10px rgba(0,0,0,0.07);
 }
@@ -1071,6 +1078,8 @@ body.sidebar-collapsed .sidebar-toggle-main {
 
 .note-content {
     flex: 1;
+    min-height: 0;
+    overflow: hidden;
     font-size: 0.88rem;
     color: #333;
     white-space: pre-wrap;
@@ -1084,6 +1093,8 @@ body.sidebar-collapsed .sidebar-toggle-main {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .plan-item {
