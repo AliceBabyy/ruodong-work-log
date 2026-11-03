@@ -10,6 +10,9 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_user
 from app.database import get_db
 from app.models import RestLog, StudyLog, User, WorkLog
+from app.routers.day import _compute_time_summary, _get_day_logs, _get_notes
+from app.routers.todo import _attach_checks, _query_notes
+from app.routers.week import WEEKDAY_LABELS
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -107,6 +110,19 @@ def index(
         prev_date = date(year, month - 1, 1)
         next_date = date(year, month + 1, 1) if month < 12 else date(year + 1, 1, 1)
 
+    # 本日概览：今天的时间投入、小结与待办（口径与时间线/待办页一致）
+    work_logs, study_logs, rest_logs = _get_day_logs(db, today, user.id)
+    time_summary = _compute_time_summary(work_logs, study_logs, rest_logs)
+    today_note, yesterday_plan = _get_notes(db, today, user.id)
+    today_notes = _attach_checks(_query_notes(db, "daily", user.id, today))
+    pending_items = [
+        (n.id, text)
+        for n in today_notes
+        if n.tag == "plan" and n.plan_rows
+        for text, done, _ in n.plan_rows
+        if not done
+    ]
+
     return templates.TemplateResponse(
         request,
         "calendar.html",
@@ -119,5 +135,13 @@ def index(
             "current_month": month,
             "prev_date": prev_date,
             "next_date": next_date,
+            "weekday": WEEKDAY_LABELS[today.weekday()],
+            "today_ds": today.strftime("%Y-%m-%d"),
+            "time_summary": time_summary,
+            "today_note": today_note,
+            "yesterday_plan": yesterday_plan,
+            "today_notes": today_notes,
+            "pending_items": pending_items,
+            "pending_count": len(pending_items),
         },
     )

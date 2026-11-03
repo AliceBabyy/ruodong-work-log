@@ -33,4 +33,93 @@
         {% endfor %}
     </div>
 </div>
+
+<!-- 本日概览：今天的时间投入、小结与待办（始终指今天，与所看月份无关） -->
+<div class="content-card today-overview mt-4">
+    <div class="today-overview-head">
+        <div class="today-overview-title">
+            <svg class="note-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .5-.868L8 8.71V3.5z"/>
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+            </svg>
+            本日概览
+            <span class="today-overview-date">{{ today.strftime('%m月%d日') }} · {{ weekday }}</span>
+        </div>
+        <a href="/day/{{ today_ds }}/timeline" class="back-link">进入今天 →</a>
+    </div>
+
+    {% if yesterday_plan %}
+    <div class="today-overview-reminder">
+        <span class="today-overview-reminder-label">昨天你计划今天</span>
+        <span class="today-overview-reminder-text">{{ yesterday_plan }}</span>
+    </div>
+    {% endif %}
+
+    {% if time_summary and time_summary.has_records %}
+    <div class="time-summary-grid">
+        <div class="time-summary-item">
+            <span class="badge-type badge-work">工作</span>
+            <span class="time-summary-value">{{ time_summary.work_text }}</span>
+            <span class="time-summary-count">{{ time_summary.work_count }} 条</span>
+        </div>
+        <div class="time-summary-item">
+            <span class="badge-type badge-study">学习</span>
+            <span class="time-summary-value">{{ time_summary.study_text }}</span>
+            <span class="time-summary-count">{{ time_summary.study_count }} 条</span>
+        </div>
+        <div class="time-summary-item">
+            <span class="badge-type badge-rest">休息</span>
+            <span class="time-summary-value">{{ time_summary.rest_text }}</span>
+            <span class="time-summary-count">{{ time_summary.rest_count }} 条</span>
+        </div>
+    </div>
+    <div class="time-summary-total">今日合计 {{ time_summary.total_text }}</div>
+    {% else %}
+    <div class="note-empty">今天还没有记录。<a href="/day/{{ today_ds }}/timeline" class="back-link">去补一条 →</a></div>
+    {% endif %}
+
+    {% if today_note and (today_note.summary or today_note.plan_tomorrow) %}
+    <div class="today-overview-section">
+        <div class="today-overview-section-head">
+            <span class="today-overview-section-label">今日小结</span>
+            <span class="today-overview-section-count">已写 · <a href="/day/{{ today_ds }}/timeline" class="back-link">编辑</a></span>
+        </div>
+        {% if today_note.summary %}
+        <div class="note-block">
+            <div class="note-block-label">今日总结</div>
+            <div class="note-block-text">{{ today_note.summary }}</div>
+        </div>
+        {% endif %}
+        {% if today_note.plan_tomorrow %}
+        <div class="note-block">
+            <div class="note-block-label">明日计划</div>
+            <div class="note-block-text">{{ today_note.plan_tomorrow }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="today-overview-section">
+        <div class="today-overview-section-head">
+            <span class="today-overview-section-label">今日待办</span>
+            <span class="today-overview-section-count">{{ pending_count }} 件未完成 · 共 {{ today_notes|length }} 条便签</span>
+            <a href="/day/{{ today_ds }}/todos" class="back-link today-overview-more">去处理 →</a>
+        </div>
+        {% if pending_items %}
+        <ul class="today-pending-list">
+            {% for note_id, text in pending_items[:5] %}
+            <li class="today-pending-item">
+                <span class="today-pending-dot"></span>
+                <a href="/day/{{ today_ds }}/todos">{{ text }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if pending_items|length > 5 %}
+        <div class="today-pending-more">还有 {{ pending_items|length - 5 }} 件，去「待办便签」查看</div>
+        {% endif %}
+        {% else %}
+        <div class="note-empty">今天没有未完成的计划项。</div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

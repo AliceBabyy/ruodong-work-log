@@ -220,7 +220,7 @@
     });
 })();
 
-// 计划便签：勾选/取消某行待办（乐观更新，失败回滚）
+// 计划便签：勾选/取消某行待办（乐观更新，失败回滚；成功则行自动挪位：完成→最后，取消→未完成区末尾）
 (function() {
     document.addEventListener('change', function(e) {
         const cb = e.target;
@@ -233,7 +233,19 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'line=' + encodeURIComponent(cb.dataset.line)
         }).then(r => r.json()).then(d => {
-            if (!d || d.ok !== true) { cb.checked = !cb.checked; apply(); }
+            if (!d || d.ok !== true) { cb.checked = !cb.checked; apply(); return; }
+            const list = item ? item.closest('.note-plan-list') : null;
+            if (list) {
+                if (cb.checked) {
+                    // 勾选完成：挪到列表最后
+                    list.appendChild(item);
+                } else {
+                    // 取消完成：回到未完成区末尾（即完成区第一个之前）
+                    const firstDone = list.querySelector('.plan-item.done');
+                    if (firstDone) list.insertBefore(item, firstDone);
+                    else list.appendChild(item);
+                }
+            }
         }).catch(() => { cb.checked = !cb.checked; apply(); });
     });
 })();
@@ -279,6 +291,7 @@
         const row = document.createElement('div');
         row.className = 'plan-editor-row';
         row.innerHTML =
+            '<span class="plan-drag-handle" draggable="true" title="拖动排序">⋮⋮</span>' +
             '<input type="checkbox" class="plan-batch-check" title="选择此行">' +
             '<input type="text" name="items" class="form-control form-control-sm" placeholder="输入计划内容">' +
             '<input type="hidden" name="item_done" value="0">' +
@@ -328,8 +341,7 @@
             const form = addBtn.closest('form');
             if (form) appendPlanRow(form);
             return;
-        }
-        const resetBtn = e.target.closest('.plan-reset');
+        }        const resetBtn = e.target.closest('.plan-reset');
         if (resetBtn) {
             const row = resetBtn.closest('.plan-editor-row');
             row.classList.remove('saved', 'item-done');
@@ -367,6 +379,38 @@
                 if (cb && cb.checked) row.remove();
             });
             setBatchMode(form, false);
+        }
+    });
+
+    // 拖动排序：仅拖拽把手可拖，拖动时实时把行插入到目标行前后（items 按 DOM 顺序提交即持久化新顺序）
+    let dragRow = null;
+    document.addEventListener('dragstart', function(e) {
+        const handle = e.target.closest('.plan-drag-handle');
+        if (!handle) return;
+        dragRow = handle.closest('.plan-editor-row');
+        if (!dragRow) return;
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', ''); } catch (_) {}
+        dragRow.classList.add('dragging');
+    });
+    document.addEventListener('dragover', function(e) {
+        if (!dragRow) return;
+        const row = e.target.closest('.plan-editor-row');
+        if (!row || row === dragRow) return;
+        e.preventDefault();
+        const rect = row.getBoundingClientRect();
+        const after = e.clientY > rect.top + rect.height / 2;
+        const list = row.parentElement;
+        if (after) {
+            if (row.nextSibling !== dragRow) list.insertBefore(dragRow, row.nextSibling);
+        } else {
+            if (row !== dragRow.nextSibling) list.insertBefore(dragRow, row);
+        }
+    });
+    document.addEventListener('dragend', function() {
+        if (dragRow) {
+            dragRow.classList.remove('dragging');
+            dragRow = null;
         }
     });
 

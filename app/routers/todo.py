@@ -78,9 +78,18 @@ def _load_checks(note: StickyNote) -> list:
 
 
 def _attach_checks(notes):
-    """给便签附加按行拆分的勾选状态列表，供模板渲染计划待办项。"""
+    """给便签附加按行拆分的勾选状态列表；计划便签再附加 plan_rows——
+    展示排序：未完成项在前、已完成项挪到最后（稳定排序，各自保持原相对顺序）。
+    plan_rows 元素为 (行文本, 是否完成, 原始行号)。"""
     for n in notes:
         n.checks_list = _load_checks(n)
+        if n.tag == "plan":
+            checks = n.checks_list
+            rows = [(t, i < len(checks) and bool(checks[i]), i) for i, t in enumerate(n.content.split("\n"))]
+            rows.sort(key=lambda r: r[1])
+            n.plan_rows = rows
+        else:
+            n.plan_rows = None
     return notes
 
 

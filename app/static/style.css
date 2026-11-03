@@ -1036,6 +1036,21 @@ body.sidebar-collapsed .sidebar-toggle-main {
     aspect-ratio: 3 / 4;
     min-height: 0;
     overflow: hidden;
+    align-self: start;
+}
+
+/* 计划类型便签（含昨日计划虚拟卡）：内容必须完整展现，高度自适应，不受 3:4 限制 */
+.note-grid .note-card.plan-card,
+.note-grid .note-card.note-plan {
+    aspect-ratio: auto;
+    min-height: 108px;
+    overflow: visible;
+}
+.note-grid .note-card.plan-card .note-content,
+.note-grid .note-card.note-plan .note-content,
+.note-grid .note-card.plan-card .note-plan-list,
+.note-grid .note-card.note-plan .note-plan-list {
+    overflow: visible;
 }
 
 .note-card:hover {
@@ -1176,6 +1191,27 @@ body.sidebar-collapsed .sidebar-toggle-main {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* 拖动排序把手（仅把手可拖，避免误拖输入框） */
+.plan-drag-handle {
+    flex-shrink: 0;
+    cursor: grab;
+    color: #c3c3c3;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 4px;
+    user-select: none;
+    letter-spacing: 1px;
+}
+.plan-drag-handle:hover {
+    color: #7ba070;
+}
+.plan-editor-row.dragging {
+    opacity: 0.45;
+}
+.plan-editor-row.drag-over {
+    box-shadow: 0 -2px 0 0 #7ba070;
 }
 
 .plan-editor-row input[type="text"] {
@@ -1541,4 +1577,132 @@ form.batch-mode .plan-del {
 .sidebar-user .logout-btn:hover {
     color: #b3403a;
     background: #fdf0f0;
+}
+
+/* ===== 月历首页 · 本日概览 ===== */
+.today-overview-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.today-overview-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.today-overview-date {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #aaa;
+}
+
+/* 昨日计划提醒条 */
+.today-overview-reminder {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+}
+
+.today-overview-reminder-label {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    color: #6b8299;
+    letter-spacing: 0.5px;
+    padding-top: 2px;
+}
+
+.today-overview-reminder-text {
+    color: #555;
+    font-size: 0.88rem;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    min-width: 0;
+}
+
+/* 分区：小结 / 待办 */
+.today-overview-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #eee;
+}
+
+.today-overview-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.today-overview-section-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.today-overview-section-count {
+    font-size: 0.72rem;
+    color: #aaa;
+}
+
+.today-overview-more {
+    margin-left: auto;
+}
+
+/* 未完成计划项列表 */
+.today-pending-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.today-pending-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #444;
+}
+
+.today-pending-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7ba070;
+    flex-shrink: 0;
+    margin-top: 8px;
+}
+
+.today-pending-item a {
+    color: #444;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.today-pending-item a:hover {
+    color: #7ba070;
+}
+
+.today-pending-more {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: #aaa;
+}
+
+/* 卡片内的空态提示：去掉全页级的居中大留白 */
+.today-overview .note-empty {
+    padding: 4px 0;
+    text-align: left;
 }
