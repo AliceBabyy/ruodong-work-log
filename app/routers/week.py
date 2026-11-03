@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
@@ -39,8 +39,13 @@ def _count_logs_on(db: Session, d: date, user_id: int) -> int:
 
 
 @router.get("/week")
-def week_today():
-    """不带日期：直接跳到本周。"""
+def week_today(date_str: str | None = Query(default=None, alias="date")):
+    """不带日期：直接跳到本周；带 ?date=YYYY-MM-DD：跳到该日期所在周。
+
+    参数用别名 date 接收，函数内用 date_str，避免遮蔽 datetime.date 类。
+    """
+    if date_str:
+        return RedirectResponse(f"/week/{date_str}", status_code=303)
     today = date.today()
     monday = _monday_of(today)
     return RedirectResponse(f"/week/{monday.strftime('%Y-%m-%d')}", status_code=303)

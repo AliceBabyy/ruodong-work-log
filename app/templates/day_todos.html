@@ -4,6 +4,9 @@
 {% block content %}
 {% set ds = current_date.strftime('%Y-%m-%d') %}
 {% set hide_after = 99999 %}
+{% set pinned_notes = notes | selectattr('pinned') | list %}
+{% set other_notes = notes | rejectattr('pinned') | list %}
+{% set has_pinned = yesterday_plan or pinned_notes %}
 <div class="page-header">
     <div>
         <h2 class="page-title">{{ current_date.strftime('%Y年%m月%d日') }} · 待办便签</h2>
@@ -17,8 +20,12 @@
     </div>
 </div>
 
-<div class="content-card">
-    {% if yesterday_plan or notes %}
+{% if has_pinned %}
+<div class="content-card mb-4">
+    <div class="note-section-title">
+        <span class="note-section-label">置顶便签</span>
+        <span class="note-section-count">{{ (1 if yesterday_plan else 0) + pinned_notes|length }} 条</span>
+    </div>
     <div class="note-grid">
         {% if yesterday_plan %}
         <article class="note-card note-plan">
@@ -26,15 +33,34 @@
             <div class="note-content">{{ yesterday_plan }}</div>
         </article>
         {% endif %}
-        {% for note in notes %}
+        {% for note in pinned_notes %}
         {% set note_index = loop.index0 %}
         {% include "_note_card.html" %}
         {% endfor %}
     </div>
-    {% else %}
-    <p class="note-empty">今天还没有便签。随手记点什么，或者列几件要办的事。</p>
-    {% endif %}
 </div>
+{% endif %}
+
+{% if other_notes %}
+<div class="content-card">
+    <div class="note-section-title">
+        <span class="note-section-label">其他便签</span>
+        <span class="note-section-count">{{ other_notes|length }} 条</span>
+    </div>
+    <div class="note-grid">
+        {% for note in other_notes %}
+        {% set note_index = loop.index0 %}
+        {% include "_note_card.html" %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if not has_pinned and not other_notes %}
+<div class="content-card">
+    <p class="note-empty">今天还没有便签。随手记点什么，或者列几件要办的事。</p>
+</div>
+{% endif %}
 
 <!-- 新增便签弹窗 -->
 <div class="modal fade" id="addNoteModal" tabindex="-1">

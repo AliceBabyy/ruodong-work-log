@@ -39,12 +39,32 @@
     </div>
     {% if global_notes %}
     {% set hide_after = 99999 %}
-    <div class="note-grid">
-        {% for note in global_notes %}
+    {% set pinned_global = global_notes | selectattr('pinned') | list %}
+    {% set other_global = global_notes | rejectattr('pinned') | list %}
+    {% if pinned_global %}
+    <div class="note-section-title mb-2">
+        <span class="note-section-label">置顶便签</span>
+        <span class="note-section-count">{{ pinned_global|length }} 条</span>
+    </div>
+    <div class="note-grid mb-4">
+        {% for note in pinned_global %}
         {% set note_index = loop.index0 %}
         {% include "_note_card.html" %}
         {% endfor %}
     </div>
+    {% endif %}
+    {% if other_global %}
+    <div class="note-section-title mb-2">
+        <span class="note-section-label">其他便签</span>
+        <span class="note-section-count">{{ other_global|length }} 条</span>
+    </div>
+    <div class="note-grid">
+        {% for note in other_global %}
+        {% set note_index = loop.index0 %}
+        {% include "_note_card.html" %}
+        {% endfor %}
+    </div>
+    {% endif %}
     {% else %}
     <p class="note-empty">还没有全局待办。把不限定日期、想一直记得的事放在这里。</p>
     {% endif %}

@@ -4,17 +4,22 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h2 class="page-title">{{ monday.strftime('%Y年%m月%d日') }} – {{ sunday.strftime('%m月%d日') }} · 本周总览</h2>
+        <h2 class="page-title">{{ monday.strftime('%Y年%m月%d日') }} – {{ sunday.strftime('%m月%d日') }} · 周总览</h2>
         <p class="text-muted small mb-0 mt-1">
             {% if monday <= today <= sunday %}本周{% else %}历史周{% endif %}
         </p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-        <a href="/week/{{ prev_monday.strftime('%Y-%m-%d') }}" class="back-link">← 上一周</a>
+    <div class="week-nav">
+        <form class="week-picker" method="get" action="/week">
+            <input type="date" name="date" class="form-control form-control-sm week-picker-input"
+                   value="{{ monday.strftime('%Y-%m-%d') }}" title="选择任意一周的某一天">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">查看该周</button>
+        </form>
+        <a href="/week/{{ prev_monday.strftime('%Y-%m-%d') }}" class="btn btn-outline-secondary btn-sm">← 上一周</a>
         {% if not (monday <= today <= sunday) %}
-        <a href="/week/{{ today.strftime('%Y-%m-%d') }}" class="btn btn-light btn-sm">回到本周</a>
+        <a href="/week/{{ today.strftime('%Y-%m-%d') }}" class="btn btn-outline-secondary btn-sm">回到本周</a>
         {% endif %}
-        <a href="/week/{{ next_monday.strftime('%Y-%m-%d') }}" class="back-link">下一周 →</a>
+        <a href="/week/{{ next_monday.strftime('%Y-%m-%d') }}" class="btn btn-outline-secondary btn-sm">下一周 →</a>
     </div>
 </div>
 
@@ -52,7 +57,7 @@
                     <path d="M10.5 1.5V4H13"/>
                     <path d="M5 7h6M5 9.5h6M5 12h4"/>
                 </svg>
-                本周小结
+                周小结
             </div>
 
             {% if last_week_plan %}
@@ -60,7 +65,7 @@
                 <svg class="note-reminder-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
                     <path d="M5.5 2.5a.5.5 0 0 1 .5.5V5h4V3a.5.5 0 0 1 1 0v2h1a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1V3a.5.5 0 0 1 .5-.5z"/>
                 </svg>
-                <span class="note-reminder-label">上周你计划本周</span>
+                <span class="note-reminder-label">{% if monday <= today <= sunday %}上周你计划本周{% else %}上一周计划这周{% endif %}</span>
                 <span class="note-reminder-text">{{ last_week_plan }}</span>
             </div>
             {% endif %}
@@ -68,13 +73,13 @@
             {% if week_note and (week_note.week_summary or week_note.next_week_plan) %}
                 {% if week_note.week_summary %}
                 <div class="note-block">
-                    <div class="note-block-label">本周总结</div>
+                    <div class="note-block-label">{% if monday <= today <= sunday %}本周总结{% else %}这一周总结{% endif %}</div>
                     <div class="note-block-text">{{ week_note.week_summary }}</div>
                 </div>
                 {% endif %}
                 {% if week_note.next_week_plan %}
                 <div class="note-block">
-                    <div class="note-block-label">下周计划</div>
+                    <div class="note-block-label">{% if monday <= today <= sunday %}下周计划{% else %}下一周计划{% endif %}</div>
                     <div class="note-block-text">{{ week_note.next_week_plan }}</div>
                 </div>
                 {% endif %}
@@ -83,7 +88,7 @@
             {% endif %}
         </div>
         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#weekNoteModal">
-            {{ '编辑本周小结' if week_note else '写本周小结' }}
+            {{ '编辑小结' if week_note else '写小结' }}
         </button>
     </div>
 </div>
@@ -93,7 +98,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">本周小结 · {{ monday.strftime('%m月%d日') }} – {{ sunday.strftime('%m月%d日') }}</h5>
+        <h5 class="modal-title">周小结 · {{ monday.strftime('%m月%d日') }} – {{ sunday.strftime('%m月%d日') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -123,12 +128,12 @@
           <input type="hidden" name="week_start" value="{{ monday.strftime('%Y-%m-%d') }}">
           <input type="hidden" name="return_week" value="{{ monday.strftime('%Y-%m-%d') }}">
           <div class="mb-3 mt-3">
-            <label class="form-label">本周整体总结（几句话）</label>
+            <label class="form-label">{% if monday <= today <= sunday %}本周{% else %}这一周{% endif %}整体总结（几句话）</label>
             <textarea name="week_summary" class="form-control" rows="3"
                       placeholder="这一周主要推进了什么？有什么收获或卡点？">{{ week_note.week_summary if week_note and week_note.week_summary else '' }}</textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">下周计划（几句话）</label>
+            <label class="form-label">{% if monday <= today <= sunday %}下周{% else %}下一周{% endif %}计划（几句话）</label>
             <textarea name="next_week_plan" class="form-control" rows="3"
                       placeholder="下周想重点推进哪几件事？">{{ week_note.next_week_plan if week_note and week_note.next_week_plan else '' }}</textarea>
           </div>
